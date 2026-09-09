@@ -21,9 +21,8 @@ env/
 # Environment
 .env
 
-# Evidence screenshots (keep JSON logs, ignore large binaries)
-evidence/*/screenshots/*.png
-evidence/*/screenshots/*.jpg
+# Evidence screenshots - include them for assignment review
+# (In production these would be gitignored due to size)
 
 # OS
 .DS_Store
