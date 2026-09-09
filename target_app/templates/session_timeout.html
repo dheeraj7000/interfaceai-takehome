@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body { margin:0; padding:0; background:rgba(0,0,0,0.5); font-family:Verdana,sans-serif; }
+.overlay { position:fixed; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; }
+.dialog { background:white; border:2px solid #CC0000; padding:0; width:400px; box-shadow:4px 4px 10px rgba(0,0,0,0.3); }
+.dlgtitle { background:#CC0000; color:white; padding:8px 14px; font-size:13px; font-weight:bold; }
+.dlgbody { padding:20px; font-size:12px; color:#333; line-height:1.6; }
+.dlgbtn { text-align:center; padding:10px 20px 20px; }
+input.b1 { background:#CC0000; color:white; border:1px solid #CC0000; padding:5px 24px; font-size:12px; cursor:pointer; }
+</style>
+</head>
+<body>
+<div class="overlay">
+<div class="dialog">
+  <div class="dlgtitle">⚠ Session Timeout</div>
+  <div class="dlgbody">
+    Your session has expired due to inactivity.<br><br>
+    Please log in again to continue.<br><br>
+    <b>Error Code:</b> SESS_TIMEOUT_0042
+  </div>
+  <div class="dlgbtn">
+    <a href="/member/search"><input type="button" value="Return to Login" class="b1"></a>
+  </div>
+</div>
+</div>
+</body>
+</html>

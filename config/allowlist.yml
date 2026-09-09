@@ -1,0 +1,72 @@
+# Safety Allowlist Configuration
+# Defines what the automation agent is permitted to do.
+#
+# This is the outermost guardrail. Every URL navigation and every action
+# is checked against this policy before execution.
+
+domains:
+  # Local development target app
+  - pattern: "^https?://localhost(:\\d+)?(/.*)?$"
+    allowed_actions:
+      - navigate
+      - click
+      - type
+      - select
+      - clear
+      - press_key
+      - hover
+      - scroll
+      - wait
+      - extract
+      - assert
+      - screenshot
+    blocked_paths:
+      - "/admin"
+    require_confirmation_for_risky: true
+    max_actions_per_run: 100
+
+  # Docker internal network
+  - pattern: "^https?://target-app(:\\d+)?(/.*)?$"
+    allowed_actions:
+      - navigate
+      - click
+      - type
+      - select
+      - clear
+      - press_key
+      - hover
+      - scroll
+      - wait
+      - extract
+      - assert
+      - screenshot
+    blocked_paths: []
+    require_confirmation_for_risky: true
+    max_actions_per_run: 100
+
+  # Loopback
+  - pattern: "^https?://127\\.0\\.0\\.1(:\\d+)?(/.*)?$"
+    allowed_actions:
+      - navigate
+      - click
+      - type
+      - select
+      - clear
+      - press_key
+      - hover
+      - scroll
+      - wait
+      - extract
+      - assert
+      - screenshot
+    blocked_paths: []
+    require_confirmation_for_risky: true
+    max_actions_per_run: 100
+
+# Actions blocked everywhere, regardless of domain
+global_blocked_actions: []
+
+# Global safety defaults
+require_confirmation_for_risky: true
+max_discovery_steps: 25
+max_replay_steps: 50

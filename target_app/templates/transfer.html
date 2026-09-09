@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body { margin:0; padding:10px; background:#F0F0F0; font-family:Verdana,sans-serif; font-size:12px; }
+table.content { width:98%; margin:10px auto; background:#FFFFFF; border:1px solid #999; }
+td.pagetitle { background:#003366; color:white; font-size:14px; font-weight:bold; padding:8px 12px; }
+td.bodycell { padding:20px; }
+table.frm { border:0; }
+td.lbl { font-weight:bold; padding:6px 8px 6px 0; text-align:right; width:160px; color:#333; vertical-align:top; }
+td.fld { padding:6px 4px; }
+select.s1 { border:1px solid #999; padding:3px 6px; font-size:12px; font-family:Verdana; width:280px; }
+input.t1 { border:1px solid #999; padding:3px 6px; font-size:12px; font-family:Verdana; width:140px; }
+input.b1 { background:#003366; color:white; border:1px solid #003366; padding:5px 20px; font-size:12px; cursor:pointer; }
+input.b1:hover { background:#004488; }
+.errmsg { background:#FFE0E0; border:1px solid #CC0000; color:#CC0000; padding:8px 12px; margin:0 0 12px 0; font-weight:bold; }
+.warnbox { background:#FFF8E1; border:1px solid #FFB300; color:#795548; padding:8px 12px; margin:0 0 12px 0; font-size:11px; }
+</style>
+</head>
+<body>
+<table class="content" cellpadding="0" cellspacing="0" border="0">
+<tr><td class="pagetitle">Fund Transfer{% if member %} — {{ member.id }}{% endif %}</td></tr>
+<tr><td class="bodycell">
+
+{% if error_msg %}
+<div class="errmsg">{{ error_msg }}</div>
+{% endif %}
+
+<div class="warnbox">
+⚠ <b>Notice:</b> Fund transfers are irreversible once confirmed. Verify all details before proceeding.
+</div>
+
+<form method="POST" action="/transfer{% if member %}?member_id={{ member.id }}{% endif %}">
+<table class="frm" cellpadding="0" cellspacing="0" border="0">
+<tr>
+  <td class="lbl">From Account:</td>
+  <td class="fld">
+    <select name="from_account" class="s1" aria-label="Source Account">
+      <option value="">-- Select Source Account --</option>
+      {% if member %}
+        {% for acct in member.accounts %}
+        <option value="{{ acct.number }}" {% if from_acct == acct.number %}selected{% endif %}>
+          {{ acct.number }} ({{ acct.type }}) — ${{ acct.balance }}
+        </option>
+        {% endfor %}
+      {% endif %}
+    </select>
+  </td>
+</tr>
+<tr>
+  <td class="lbl">To Account:</td>
+  <td class="fld">
+    <select name="to_account" class="s1" aria-label="Destination Account">
+      <option value="">-- Select Destination Account --</option>
+      {% if member %}
+        {% for acct in member.accounts %}
+        <option value="{{ acct.number }}" {% if to_acct == acct.number %}selected{% endif %}>
+          {{ acct.number }} ({{ acct.type }}) — ${{ acct.balance }}
+        </option>
+        {% endfor %}
+      {% endif %}
+    </select>
+  </td>
+</tr>
+<tr>
+  <td class="lbl">Transfer Amount ($):</td>
+  <td class="fld">
+    <input type="text" name="amount" class="t1" value="{{ amount }}" aria-label="Transfer Amount">
+  </td>
+</tr>
+<tr>
+  <td class="lbl">&nbsp;</td>
+  <td class="fld" style="padding-top:14px;">
+    <input type="submit" value="Review Transfer" class="b1">
+    &nbsp;&nbsp;
+    <a href="/member/{{ member.id if member else '' }}" style="color:#666; font-size:11px;">Cancel</a>
+  </td>
+</tr>
+</table>
+</form>
+
+</td></tr>
+</table>
+</body>
+</html>

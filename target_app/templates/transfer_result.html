@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body { margin:0; padding:10px; background:#F0F0F0; font-family:Verdana,sans-serif; font-size:12px; }
+table.content { width:98%; margin:10px auto; background:#FFFFFF; border:1px solid #999; }
+td.pagetitle { background:#006633; color:white; font-size:14px; font-weight:bold; padding:8px 12px; }
+td.bodycell { padding:20px; }
+table.dtbl { width:50%; border-collapse:collapse; margin:12px 0; }
+table.dtbl td { padding:6px 10px; border-bottom:1px solid #EEE; font-size:12px; }
+table.dtbl td.dlbl { font-weight:bold; width:160px; color:#555; background:#FAFAFA; }
+.successbox { background:#E8F5E9; border:2px solid #006633; color:#006633; padding:10px 14px; margin:0 0 14px 0; font-weight:bold; font-size:13px; }
+a.actlink { color:#003366; font-size:11px; }
+</style>
+</head>
+<body>
+<table class="content" cellpadding="0" cellspacing="0" border="0">
+<tr><td class="pagetitle">✓ Transfer Complete</td></tr>
+<tr><td class="bodycell">
+
+<div class="successbox">
+Transfer executed successfully. Reference: {{ ref_number }}
+</div>
+
+<table class="dtbl" cellpadding="0" cellspacing="0" border="0">
+  <tr><td class="dlbl">Reference Number</td><td>{{ ref_number }}</td></tr>
+  <tr><td class="dlbl">From Account</td><td>{{ from_acct }}</td></tr>
+  <tr><td class="dlbl">To Account</td><td>{{ to_acct }}</td></tr>
+  <tr><td class="dlbl">Amount</td><td style="font-weight:bold;">{{ amount }}</td></tr>
+  <tr><td class="dlbl">Status</td><td style="color:#006633; font-weight:bold;">COMPLETED</td></tr>
+</table>
+
+<br>
+{% if member_id %}
+<a class="actlink" href="/member/{{ member_id }}">Return to Member Detail</a>
+<span style="color:#999;"> | </span>
+{% endif %}
+<a class="actlink" href="/member/search">Member Search</a>
+
+</td></tr>
+</table>
+</body>
+</html>

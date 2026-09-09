@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body { margin:0; padding:10px; background:#F0F0F0; font-family:Verdana,sans-serif; font-size:12px; }
+table.content { width:98%; margin:10px auto; background:#FFFFFF; border:1px solid #999; }
+td.pagetitle { background:#CC0000; color:white; font-size:14px; font-weight:bold; padding:8px 12px; }
+td.bodycell { padding:20px; }
+.errmsg { background:#FFE0E0; border:1px solid #CC0000; color:#CC0000; padding:12px; }
+pre { background:#F5F5F5; border:1px solid #DDD; padding:10px; font-size:10px; color:#555; overflow-x:auto; }
+</style>
+</head>
+<body>
+<table class="content" cellpadding="0" cellspacing="0" border="0">
+<tr><td class="pagetitle">System Error</td></tr>
+<tr><td class="bodycell">
+<div class="errmsg">
+<b>Internal Server Error (500)</b><br><br>
+An unexpected error occurred while processing your request.
+</div>
+<br>
+<pre>
+Error: INTERNAL_SYS_ERR_0500
+Timestamp: 2026-09-08T14:22:31Z
+Module: MemberService.lookup
+Stack: com.hfcu.backoffice.MemberService.lookup(MemberService.java:142)
+       com.hfcu.backoffice.servlet.MemberServlet.doGet(MemberServlet.java:87)
+       javax.servlet.http.HttpServlet.service(HttpServlet.java:750)
+</pre>
+<br>
+<a href="/member/search" style="color:#003366; font-size:11px;">&laquo; Return to Member Search</a>
+</td></tr>
+</table>
+</body>
+</html>

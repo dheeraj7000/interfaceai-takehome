@@ -1,0 +1,250 @@
+{
+  "metadata": {
+    "name": "lookup_member_balance",
+    "display_name": "Look Up Member Savings Balance",
+    "description": "Navigates to the HFCU BackOffice member search page, searches for a member by ID, and extracts their savings account balance from the member detail page.",
+    "version": "1.0.0",
+    "schema_version": "1.0",
+    "surface_type": "legacy_web",
+    "target_url_pattern": "http://localhost:5000/*",
+    "source_goal": "Look up member M1001 and read their current savings balance",
+    "created_at": "2026-09-08T10:00:00Z",
+    "created_by": "discovery_agent",
+    "tags": ["member", "balance", "read-only", "savings"],
+    "tenant_id": null,
+    "parent_artifact_id": null
+  },
+  "inputs": [
+    {
+      "name": "member_id",
+      "type": "string",
+      "required": true,
+      "description": "The member ID to look up (e.g. M1001)",
+      "sensitive": false,
+      "default": null,
+      "validation_pattern": "^M\\d{4,}$"
+    }
+  ],
+  "outputs": [
+    {
+      "name": "member_name",
+      "type": "string",
+      "description": "The full name of the member",
+      "extractor": {
+        "strategy": "css_selector",
+        "value": "td.dlbl:has-text('Full Name') + td.dval",
+        "semantic": "The member full name cell in the Member Information table"
+      },
+      "sensitive": false
+    },
+    {
+      "name": "savings_balance",
+      "type": "string",
+      "description": "The member's savings account balance",
+      "extractor": {
+        "strategy": "xpath",
+        "value": "//table[contains(@class,'atbl')]//tr[td[contains(text(),'Savings')]]/td[contains(@class,'bal')]",
+        "semantic": "The balance cell in the Savings row of the Accounts table"
+      },
+      "sensitive": false
+    },
+    {
+      "name": "member_status",
+      "type": "string",
+      "description": "The account status (Active, Frozen, etc.)",
+      "extractor": {
+        "strategy": "css_selector",
+        "value": "td.dlbl:has-text('Status') + td.dval",
+        "semantic": "The status cell in the Member Information table"
+      },
+      "sensitive": false
+    }
+  ],
+  "steps": [
+    {
+      "id": "step_01",
+      "description": "Navigate to the member search page",
+      "action": "navigate",
+      "target": null,
+      "value": "http://localhost:5000/member/search",
+      "risk_level": "safe",
+      "pre_condition": null,
+      "post_condition": {
+        "type": "text_present",
+        "locator": null,
+        "expected_value": "Member Search",
+        "description": "The Member Search page is displayed",
+        "timeout_ms": 5000
+      },
+      "error_matchers": [],
+      "timeout_ms": 10000,
+      "retry": {"max_attempts": 2, "delay_ms": 1000, "backoff_multiplier": 1.5},
+      "recorded_at": "2026-09-08T10:00:01Z",
+      "recorded_duration_ms": 1200
+    },
+    {
+      "id": "step_02",
+      "description": "Type the member ID into the search field",
+      "action": "type",
+      "target": {
+        "strategy": "a11y_label",
+        "value": "Member ID",
+        "semantic": "The Member ID search input field",
+        "a11y_role": "textbox",
+        "a11y_name": "Member ID"
+      },
+      "value": "{{member_id}}",
+      "risk_level": "safe",
+      "pre_condition": {
+        "type": "element_visible",
+        "locator": {
+          "strategy": "a11y_label",
+          "value": "Member ID",
+          "semantic": "Member ID input field"
+        },
+        "expected_value": null,
+        "description": "The member ID input field is visible",
+        "timeout_ms": 5000
+      },
+      "post_condition": null,
+      "error_matchers": [],
+      "timeout_ms": 5000,
+      "retry": {"max_attempts": 2, "delay_ms": 500, "backoff_multiplier": 1.5},
+      "recorded_at": "2026-09-08T10:00:02Z",
+      "recorded_duration_ms": 300
+    },
+    {
+      "id": "step_03",
+      "description": "Click the Search button to submit the lookup",
+      "action": "click",
+      "target": {
+        "strategy": "css_selector",
+        "value": "input.b1[value='Search']",
+        "semantic": "The Search submit button",
+        "a11y_role": "button",
+        "a11y_name": "Search"
+      },
+      "value": null,
+      "risk_level": "safe",
+      "pre_condition": null,
+      "post_condition": null,
+      "error_matchers": [
+        {
+          "pattern": "NO RESULTS:.*not found",
+          "is_regex": true,
+          "category": "business_outcome",
+          "outcome_code": "MEMBER_NOT_FOUND",
+          "recovery_action": null,
+          "recovery_locator": null,
+          "message_template": "Member {{member_id}} was not found in the system"
+        },
+        {
+          "pattern": "VALIDATION ERROR:",
+          "is_regex": false,
+          "category": "business_outcome",
+          "outcome_code": "VALIDATION_ERROR",
+          "recovery_action": null,
+          "recovery_locator": null,
+          "message_template": "Invalid member ID format"
+        }
+      ],
+      "timeout_ms": 10000,
+      "retry": {"max_attempts": 2, "delay_ms": 1000, "backoff_multiplier": 1.5},
+      "recorded_at": "2026-09-08T10:00:03Z",
+      "recorded_duration_ms": 800
+    },
+    {
+      "id": "step_04",
+      "description": "Wait for member detail page to load and verify member info is displayed",
+      "action": "wait",
+      "target": null,
+      "value": null,
+      "risk_level": "safe",
+      "pre_condition": null,
+      "post_condition": {
+        "type": "text_present",
+        "locator": null,
+        "expected_value": "Member Detail",
+        "description": "The Member Detail page is displayed with member information",
+        "timeout_ms": 8000
+      },
+      "error_matchers": [],
+      "timeout_ms": 8000,
+      "retry": {"max_attempts": 3, "delay_ms": 1000, "backoff_multiplier": 2.0},
+      "recorded_at": "2026-09-08T10:00:04Z",
+      "recorded_duration_ms": 500
+    },
+    {
+      "id": "step_05",
+      "description": "Extract the member's savings balance and other details",
+      "action": "extract",
+      "target": null,
+      "value": null,
+      "risk_level": "safe",
+      "pre_condition": {
+        "type": "text_present",
+        "locator": null,
+        "expected_value": "Accounts",
+        "description": "The Accounts section is visible on the member detail page",
+        "timeout_ms": 5000
+      },
+      "post_condition": null,
+      "error_matchers": [],
+      "timeout_ms": 5000,
+      "retry": null,
+      "recorded_at": "2026-09-08T10:00:05Z",
+      "recorded_duration_ms": 200
+    }
+  ],
+  "success_condition": {
+    "type": "text_present",
+    "locator": null,
+    "expected_value": "Member Detail",
+    "description": "Member detail page is displayed with account information",
+    "timeout_ms": 5000
+  },
+  "error_handlers": [
+    {
+      "name": "session_timeout",
+      "description": "Catches session timeout / expiry dialogs",
+      "priority": 10,
+      "matcher": {
+        "pattern": "Session.*expired|Session.*Timeout|session has expired",
+        "is_regex": true,
+        "category": "recoverable",
+        "outcome_code": null,
+        "recovery_action": "escalate",
+        "recovery_locator": null,
+        "message_template": "Session timed out — escalating to human operator"
+      }
+    },
+    {
+      "name": "permission_denied",
+      "description": "Catches permission/authorization denied errors",
+      "priority": 9,
+      "matcher": {
+        "pattern": "PERMISSION DENIED|Access Denied|not have access",
+        "is_regex": true,
+        "category": "hard_failure",
+        "outcome_code": null,
+        "recovery_action": null,
+        "recovery_locator": null,
+        "message_template": "Permission denied — operator lacks required access"
+      }
+    },
+    {
+      "name": "server_error",
+      "description": "Catches internal server errors (500)",
+      "priority": 8,
+      "matcher": {
+        "pattern": "Internal Server Error|500|INTERNAL_SYS_ERR",
+        "is_regex": true,
+        "category": "hard_failure",
+        "outcome_code": null,
+        "recovery_action": null,
+        "recovery_locator": null,
+        "message_template": "Server error encountered"
+      }
+    }
+  ]
+}

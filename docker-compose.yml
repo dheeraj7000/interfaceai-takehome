@@ -1,0 +1,62 @@
+# Computer-Use Automation System — Docker Compose
+#
+# Services:
+#   target-app    — The mock legacy bank app (Flask/gunicorn on :5000)
+#   browser       — Chromium with noVNC for human-in-the-loop escalation (:6080)
+#
+# Usage:
+#   docker compose up -d          # Start everything
+#   docker compose logs -f        # Watch logs
+#   docker compose down           # Tear down
+#
+# The CUA system itself runs on the host (not in Docker) so it can
+# use Playwright to connect to the browser container via CDP.
+
+services:
+  target-app:
+    build:
+      context: ./target_app
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/member/search')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  # Chromium browser with noVNC — used for:
+  # 1. Human-in-the-loop: operator connects via http://localhost:6080 to take over
+  # 2. Visual debugging: watch the automation in real time
+  #
+  # Uses the lightweight kasmweb/chrome image which bundles:
+  #   - Chromium browser
+  #   - VNC server
+  #   - noVNC web client
+  browser:
+    image: kasmweb/chrome:1.15.0
+    ports:
+      - "6901:6901"    # noVNC web client (HTTPS)
+    environment:
+      - VNC_PW=automation
+      - LAUNCH_URL=http://target-app:5000/member/search
+    shm_size: "2g"
+    depends_on:
+      target-app:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Lightweight alternative: standalone Chromium with VNC
+  # Uncomment this and comment out the kasmweb service if preferred
+  # browser-lite:
+  #   image: selenium/standalone-chromium:latest
+  #   ports:
+  #     - "4444:4444"   # Selenium grid
+  #     - "7900:7900"   # noVNC
+  #   shm_size: "2g"
+  #   environment:
+  #     - SE_VNC_NO_PASSWORD=true
+  #   depends_on:
+  #     target-app:
+  #       condition: service_healthy

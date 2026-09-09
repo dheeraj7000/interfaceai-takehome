@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+
+# Evidence screenshots (keep JSON logs, ignore large binaries)
+evidence/*/screenshots/*.png
+evidence/*/screenshots/*.jpg
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker
+target_app/__pycache__/

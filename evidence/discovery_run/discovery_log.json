@@ -1,0 +1,95 @@
+{
+  "metadata": {
+    "run_id": "disc_a1b2c3d4",
+    "run_type": "discovery",
+    "started_at": "2026-09-08T10:00:00.000Z",
+    "completed_at": "2026-09-08T10:00:42.000Z",
+    "status": "success",
+    "message": "Goal complete — member balance extracted",
+    "total_steps": 7,
+    "goal": "Look up member M1001 and read their current savings balance",
+    "target": "http://localhost:5000",
+    "llm_provider": "anthropic",
+    "llm_model": "claude-sonnet-4-20250514"
+  },
+  "entries": [
+    {
+      "timestamp": "2026-09-08T10:00:01.200Z",
+      "step_id": "step_1",
+      "action": "observe",
+      "status": "passed",
+      "details": "Initial page loaded — HFCU BackOffice frameset with navigation and workspace frames",
+      "screenshot": "evidence/discovery_run/screenshots/step_001.png"
+    },
+    {
+      "timestamp": "2026-09-08T10:00:05.400Z",
+      "step_id": "step_1",
+      "action": "navigate to http://localhost:5000/member/search",
+      "status": "passed",
+      "details": "LLM decided to navigate directly to member search page",
+      "duration_ms": 1200,
+      "reasoning": "The goal is to look up a member. I can see a 'Member Search' link in the navigation. I'll navigate directly to the member search page."
+    },
+    {
+      "timestamp": "2026-09-08T10:00:08.100Z",
+      "step_id": "step_2",
+      "action": "type 'M1001' into Member ID input [a11y_label=Member ID]",
+      "status": "passed",
+      "details": "Typed member ID into the search field",
+      "duration_ms": 300,
+      "reasoning": "I can see a Member Search page with a Member ID input field (aria-label='Member ID'). I need to type the member ID M1001."
+    },
+    {
+      "timestamp": "2026-09-08T10:00:11.800Z",
+      "step_id": "step_3",
+      "action": "click Search button [css=input.b1[value='Search']]",
+      "status": "passed",
+      "details": "Clicked the Search submit button",
+      "duration_ms": 800,
+      "reasoning": "I've entered the member ID. Now I need to click the Search button to submit the form."
+    },
+    {
+      "timestamp": "2026-09-08T10:00:15.200Z",
+      "step_id": "step_4",
+      "action": "observe",
+      "status": "passed",
+      "details": "Member Detail page loaded for M1001 — Jane A. Doe. Accounts table visible with Savings, Checking, Certificate.",
+      "screenshot": "evidence/discovery_run/screenshots/step_004.png"
+    },
+    {
+      "timestamp": "2026-09-08T10:00:18.500Z",
+      "step_id": "step_5",
+      "action": "wait for member detail page",
+      "status": "passed",
+      "details": "Confirmed Member Detail page is displayed with account information",
+      "duration_ms": 500
+    },
+    {
+      "timestamp": "2026-09-08T10:00:22.000Z",
+      "step_id": "step_6",
+      "action": "extract data",
+      "status": "passed",
+      "details": "Extracted member name, savings balance, and account status",
+      "duration_ms": 200,
+      "extracted_data": [
+        {"name": "member_name", "value": "Jane A. Doe", "source": "Full Name cell in Member Information table"},
+        {"name": "savings_balance", "value": "$12,450.83", "source": "Balance cell in Savings row of Accounts table"},
+        {"name": "member_status", "value": "Active", "source": "Status cell in Member Information table"}
+      ]
+    },
+    {
+      "timestamp": "2026-09-08T10:00:25.000Z",
+      "event": "goal_complete",
+      "details": "LLM confirmed goal is achieved — member M1001 found, savings balance is $12,450.83"
+    },
+    {
+      "timestamp": "2026-09-08T10:00:28.000Z",
+      "event": "artifact_generated",
+      "details": "Capability artifact saved to artifacts/lookup_member_balance.json",
+      "artifact_name": "lookup_member_balance",
+      "artifact_steps": 5,
+      "artifact_inputs": 1,
+      "artifact_outputs": 3
+    }
+  ]
+}

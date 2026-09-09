@@ -1,0 +1,22 @@
+# Lightweight dev setup — just the target app.
+# The CUA system uses its own local Playwright browser (no container needed).
+#
+# Usage:
+#   docker compose -f docker-compose.dev.yml up -d
+#
+# The browser with noVNC (for human-in-the-loop) is only needed for
+# escalation demos. For normal development, local Playwright is faster.
+
+services:
+  target-app:
+    build:
+      context: ./target_app
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/member/search')"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
