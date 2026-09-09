@@ -35,6 +35,9 @@ class Settings(BaseModel):
     openai_api_key: str = Field(
         default_factory=lambda: os.getenv("OPENAI_API_KEY", "")
     )
+    gemini_api_key: str = Field(
+        default_factory=lambda: os.getenv("GEMINI_API_KEY", "")
+    )
     llm_model: str = Field(
         default_factory=lambda: os.getenv("LLM_MODEL", "")
     )
@@ -75,6 +78,8 @@ class Settings(BaseModel):
             return self.llm_model
         if self.llm_provider == "anthropic":
             return "claude-sonnet-4-20250514"
+        if self.llm_provider == "gemini":
+            return "gemini-flash-lite-latest"
         return "gpt-4o"
 
 

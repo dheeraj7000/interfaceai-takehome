@@ -1,0 +1,218 @@
+{
+  "metadata": {
+    "name": "get_member_savings_balance",
+    "display_name": "Get Member Savings Balance",
+    "description": "Looks up a member by their Member ID and retrieves their current savings balance from the system.",
+    "version": "1.0.0",
+    "schema_version": "1.0",
+    "surface_type": "legacy_web",
+    "target_url_pattern": "http://localhost:5000",
+    "source_goal": "Look up member M1001 and read their current savings balance",
+    "created_at": "2026-09-09T05:32:02.860985",
+    "created_by": "discovery_agent",
+    "tags": [
+      "member",
+      "savings",
+      "balance",
+      "lookup",
+      "finance"
+    ],
+    "tenant_id": null,
+    "parent_artifact_id": null
+  },
+  "inputs": [
+    {
+      "name": "member_id",
+      "type": "string",
+      "required": true,
+      "description": "The unique identifier of the member whose savings balance is to be retrieved",
+      "sensitive": false,
+      "default": null,
+      "validation_pattern": null
+    }
+  ],
+  "outputs": [
+    {
+      "name": "member_id",
+      "type": "string",
+      "description": "The unique identifier of the member",
+      "extractor": {
+        "strategy": "text_content",
+        "value": "member_id",
+        "semantic": "The unique identifier of the member",
+        "a11y_role": null,
+        "a11y_name": null
+      },
+      "sensitive": false
+    },
+    {
+      "name": "savings_balance",
+      "type": "string",
+      "description": "The current savings balance of the member",
+      "extractor": {
+        "strategy": "text_content",
+        "value": "savings_balance",
+        "semantic": "The current savings balance of the member",
+        "a11y_role": null,
+        "a11y_name": null
+      },
+      "sensitive": false
+    }
+  ],
+  "steps": [
+    {
+      "id": "step_01",
+      "description": "Member Search URL",
+      "action": "navigate",
+      "target": null,
+      "value": "http://localhost:5000/member/search",
+      "risk_level": "safe",
+      "pre_condition": null,
+      "post_condition": {
+        "type": "url_matches",
+        "locator": null,
+        "expected_value": "http://localhost:5000/member/search",
+        "description": "Page navigated after navigate",
+        "timeout_ms": 5000
+      },
+      "error_matchers": [],
+      "timeout_ms": 10000,
+      "retry": {
+        "max_attempts": 2,
+        "delay_ms": 1000,
+        "backoff_multiplier": 1.5
+      },
+      "recorded_at": "2026-09-09T05:32:02.860992",
+      "recorded_duration_ms": null
+    },
+    {
+      "id": "step_02",
+      "description": "Member ID input field",
+      "action": "type",
+      "target": {
+        "strategy": "a11y_role",
+        "value": "textbox:Member ID",
+        "semantic": "Member ID input field",
+        "a11y_role": null,
+        "a11y_name": null
+      },
+      "value": "M1001",
+      "risk_level": "moderate",
+      "pre_condition": null,
+      "post_condition": null,
+      "error_matchers": [],
+      "timeout_ms": 10000,
+      "retry": {
+        "max_attempts": 2,
+        "delay_ms": 1000,
+        "backoff_multiplier": 1.5
+      },
+      "recorded_at": "2026-09-09T05:32:21.813259",
+      "recorded_duration_ms": null
+    },
+    {
+      "id": "step_03",
+      "description": "Search button",
+      "action": "click",
+      "target": {
+        "strategy": "a11y_role",
+        "value": "button:Search",
+        "semantic": "Search button",
+        "a11y_role": null,
+        "a11y_name": null
+      },
+      "value": null,
+      "risk_level": "moderate",
+      "pre_condition": null,
+      "post_condition": null,
+      "error_matchers": [],
+      "timeout_ms": 10000,
+      "retry": {
+        "max_attempts": 2,
+        "delay_ms": 1000,
+        "backoff_multiplier": 1.5
+      },
+      "recorded_at": "2026-09-09T05:32:30.338908",
+      "recorded_duration_ms": null
+    }
+  ],
+  "success_condition": {
+    "type": "url_matches",
+    "locator": null,
+    "expected_value": "http://localhost:5000/member/search",
+    "description": "Final page reached after all steps",
+    "timeout_ms": 5000
+  },
+  "error_handlers": [
+    {
+      "name": "session_timeout",
+      "matcher": {
+        "pattern": "Session.*expired|Session.*Timeout|session has expired",
+        "is_regex": true,
+        "category": "recoverable",
+        "outcome_code": null,
+        "recovery_action": "escalate",
+        "recovery_locator": null,
+        "message_template": "Session timed out — escalating to human operator"
+      },
+      "description": "Catches session timeout / expiry dialogs",
+      "priority": 10
+    },
+    {
+      "name": "permission_denied",
+      "matcher": {
+        "pattern": "PERMISSION DENIED|Access Denied|not have access",
+        "is_regex": true,
+        "category": "hard_failure",
+        "outcome_code": null,
+        "recovery_action": null,
+        "recovery_locator": null,
+        "message_template": "Permission denied — operator lacks required access"
+      },
+      "description": "Catches permission/authorization denied errors",
+      "priority": 9
+    },
+    {
+      "name": "server_error",
+      "matcher": {
+        "pattern": "Internal Server Error|500|INTERNAL_SYS_ERR",
+        "is_regex": true,
+        "category": "hard_failure",
+        "outcome_code": null,
+        "recovery_action": null,
+        "recovery_locator": null,
+        "message_template": "Server error encountered"
+      },
+      "description": "Catches internal server errors (500)",
+      "priority": 8
+    },
+    {
+      "name": "member_not_found",
+      "matcher": {
+        "pattern": "NO RESULTS:.*not found|Member.*not found",
+        "is_regex": true,
+        "category": "business_outcome",
+        "outcome_code": "MEMBER_NOT_FOUND",
+        "recovery_action": null,
+        "recovery_locator": null,
+        "message_template": "Member not found in the system"
+      },
+      "description": "Catches member-not-found results (business outcome, not error)",
+      "priority": 5
+    },
+    {
+      "name": "validation_error",
+      "matcher": {
+        "pattern": "VALIDATION ERROR:",
+        "is_regex": false,
+        "category": "business_outcome",
+        "outcome_code": "VALIDATION_ERROR",
+        "recovery_action": null,
+        "recovery_locator": null,
+        "message_template": "Form validation error"
+      },
+      "description": "Catches form validation errors",
+      "priority": 4
+    }
+  ]
+}

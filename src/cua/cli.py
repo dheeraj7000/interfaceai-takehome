@@ -79,10 +79,13 @@ async def _discover(
     ))
 
     # Validate API key
-    api_key = (
-        settings.anthropic_api_key if settings.llm_provider == "anthropic"
-        else settings.openai_api_key
-    )
+    if settings.llm_provider == "anthropic":
+        api_key = settings.anthropic_api_key
+    elif settings.llm_provider == "gemini":
+        api_key = settings.gemini_api_key
+    else:
+        api_key = settings.openai_api_key
+
     if not api_key:
         console.print(f"[red]Error: No API key configured for {settings.llm_provider}.[/red]")
         console.print(f"Set {settings.llm_provider.upper()}_API_KEY in .env or environment.")

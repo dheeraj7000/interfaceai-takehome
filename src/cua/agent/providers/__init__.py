@@ -10,6 +10,7 @@ from cua.agent.providers.base import (
 )
 from cua.agent.providers.anthropic import AnthropicProvider
 from cua.agent.providers.openai import OpenAIProvider
+from cua.agent.providers.gemini import GeminiProvider
 
 
 def create_provider(
@@ -20,7 +21,7 @@ def create_provider(
     """Factory: create an LLM provider by name.
 
     Args:
-        provider_name: "anthropic" or "openai"
+        provider_name: "anthropic", "openai", or "gemini"
         api_key: The API key for the provider
         model: Optional model override (uses provider default if empty)
     """
@@ -34,8 +35,15 @@ def create_provider(
             api_key=api_key,
             model=model or "gpt-4o",
         )
+    elif provider_name == "gemini":
+        return GeminiProvider(
+            api_key=api_key,
+            model=model or "gemini-flash-lite-latest",
+        )
     else:
-        raise ValueError(f"Unknown LLM provider: {provider_name}. Use 'anthropic' or 'openai'.")
+        raise ValueError(
+            f"Unknown LLM provider: {provider_name}. Use 'anthropic', 'openai', or 'gemini'."
+        )
 
 
 __all__ = [
@@ -45,6 +53,7 @@ __all__ = [
     "ConversationMessage",
     "DecisionType",
     "ExtractedData",
+    "GeminiProvider",
     "LLMProvider",
     "OpenAIProvider",
     "create_provider",

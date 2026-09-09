@@ -124,9 +124,15 @@ class BrowserSurface(Surface):
         frame = self._active_frame()
         timestamp = time.time()
 
-        # Capture accessibility tree
-        a11y_tree = await self._get_accessibility_tree(frame)
-        a11y_text = self._serialize_a11y_tree(a11y_tree)
+        # Capture accessibility tree (raw aria snapshot for LLM)
+        a11y_raw = ""
+        try:
+            a11y_raw = await frame.locator("body").aria_snapshot()
+        except Exception as e:
+            logger.debug(f"aria_snapshot failed: {e}")
+
+        a11y_tree = self._parse_aria_snapshot(a11y_raw) if a11y_raw else []
+        a11y_text = a11y_raw  # Use the raw YAML-like format — LLMs parse it well
 
         # Capture visible text
         visible_text = await self._get_visible_text_from_frame(frame)
@@ -195,17 +201,54 @@ class BrowserSurface(Surface):
             return ""
 
     async def _get_accessibility_tree(self, frame: Frame | Page) -> list[ElementInfo]:
-        """Build accessibility tree from the frame using Playwright's a11y snapshot."""
+        """Build accessibility tree using Playwright's aria_snapshot.
+
+        In Playwright 1.50+, the old `page.accessibility.snapshot()` API was
+        removed. We use `locator.aria_snapshot()` instead, which returns a
+        YAML-like string representation of the accessibility tree.
+        We parse this into ElementInfo objects.
+        """
         try:
-            snapshot = await frame.accessibility.snapshot(interesting_only=True)  # type: ignore[union-attr]
-            if not snapshot:
+            # aria_snapshot works on locators — use the page/frame body
+            if isinstance(frame, Page):
+                snap_text = await frame.locator("body").aria_snapshot()
+            else:
+                snap_text = await frame.locator("body").aria_snapshot()
+
+            if not snap_text:
                 return []
-            elements: list[ElementInfo] = []
-            self._walk_a11y_node(snapshot, elements)
+
+            elements = self._parse_aria_snapshot(snap_text)
             return elements
         except Exception as e:
             logger.warning(f"Failed to get a11y tree: {e}")
             return []
+
+    def _parse_aria_snapshot(self, snap_text: str) -> list[ElementInfo]:
+        """Parse Playwright's aria_snapshot YAML-like output into ElementInfo objects."""
+        elements: list[ElementInfo] = []
+        for line in snap_text.split("\n"):
+            stripped = line.strip().lstrip("- ")
+            if not stripped:
+                continue
+            # Format: "role \"name\"" or "role:" or just text
+            if " " in stripped and not stripped.startswith('"'):
+                parts = stripped.split(" ", 1)
+                role = parts[0].rstrip(":")
+                name = parts[1].strip().strip('"').strip("'")
+                # Skip container roles
+                if role in ("rowgroup", "list"):
+                    continue
+                elements.append(ElementInfo(
+                    role=role,
+                    name=name,
+                    text=name,
+                ))
+            elif stripped.endswith(":"):
+                role = stripped.rstrip(":")
+                if role not in ("rowgroup", "list"):
+                    elements.append(ElementInfo(role=role, name=""))
+        return elements
 
     def _walk_a11y_node(
         self,
