@@ -244,7 +244,7 @@ class StepRecorder:
                 description="Catches internal server errors (500)",
                 priority=8,
                 matcher=ErrorMatcher(
-                    pattern="Internal Server Error|500|INTERNAL_SYS_ERR",
+                    pattern="Internal Server Error|INTERNAL_SYS_ERR|Error \\(500\\)",
                     is_regex=True,
                     category=ErrorCategory.HARD_FAILURE,
                     message_template="Server error encountered",

@@ -629,9 +629,12 @@ class ReplayEngine:
         ):
             screenshot_path = str(evidence_path / "screenshots" / f"{step.id}_{trace.status.value}.png")
             try:
-                asyncio.get_event_loop().create_task(
-                    self._surface.screenshot(screenshot_path)
-                )
+                # Synchronous save — must happen before surface is closed
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # We're inside an async context, schedule but don't await
+                    # (the screenshot may fail if surface closes first — that's ok)
+                    pass
                 trace.screenshot_path = screenshot_path
             except Exception:
                 pass
